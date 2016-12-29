@@ -14,11 +14,13 @@
  *    limitations under the License.
  */
 
-package org.apache.ibatis.reflection;
+package org.apache.ibatis.reflection.param;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -33,18 +35,23 @@ import org.apache.ibatis.session.RowBounds;
 public class ParamNameResolver {
 
   private static final String GENERIC_NAME_PREFIX = "param";
-  private static final String PARAMETER_CLASS = "java.lang.reflect.Parameter";
-  private static Method GET_NAME;
-  private static Method GET_PARAMS;
+  private static final ActualParamNameResolver actualParamNameResolver;
 
   static {
+    List<ActualParamNameResolver> resolvers = new ArrayList<ActualParamNameResolver>();
     try {
-      Class<?> paramClass = Resources.classForName(PARAMETER_CLASS);
-      GET_NAME = paramClass.getMethod("getName");
-      GET_PARAMS = Method.class.getMethod("getParameters");
+      Resources.classForName("kotlin.reflect.KClass"); // Checking whether available the kotlin.
+      resolvers.add(new KotlinActualParamNameResolver());
     } catch (Exception e) {
       // ignore
     }
+    try {
+      Resources.classForName("java.lang.reflect.Parameter"); // Checking whether available the Java 8+.
+      resolvers.add(new DefaultActualParamNameResolver());
+    } catch (Exception e) {
+      // ignore
+    }
+    actualParamNameResolver = new CompositeActualParamNameResolver(resolvers);
   }
 
   /**
@@ -86,7 +93,7 @@ public class ParamNameResolver {
       if (name == null) {
         // @Param was not specified.
         if (config.isUseActualParamName()) {
-          name = getActualParamName(method, paramIndex);
+          name = actualParamNameResolver.resolve(method, paramIndex);
         }
         if (name == null) {
           // use the parameter index as the name ("0", "1", ...)
@@ -97,18 +104,6 @@ public class ParamNameResolver {
       map.put(paramIndex, name);
     }
     names = Collections.unmodifiableSortedMap(map);
-  }
-
-  private String getActualParamName(Method method, int paramIndex) {
-    if (GET_PARAMS == null) {
-      return null;
-    }
-    try {
-      Object[] params = (Object[]) GET_PARAMS.invoke(method);
-      return (String) GET_NAME.invoke(params[paramIndex]);
-    } catch (Exception e) {
-      throw new ReflectionException("Error occurred when invoking Method#getParameters().", e);
-    }
   }
 
   private static boolean isSpecialParameter(Class<?> clazz) {
