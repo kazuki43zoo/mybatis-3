@@ -346,7 +346,13 @@
           </excludes>
         </configuration>
       </plugin>
-    </plugins>
+	<plugin>
+		<groupId>org.apache.maven.plugins</groupId>
+		<artifactId>maven-enforcer-plugin</artifactId>
+		<version>3.0.0-SNAPSHOT</version>
+	</plugin>
+
+	</plugins>
 
     <resources>
       <resource>
@@ -441,4 +447,12 @@
       </build>
     </profile>
   </profiles>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>apache.snapshots</id>
+			<url>http://repository.apache.org/snapshots/</url>
+		</pluginRepository>
+	</pluginRepositories>
+
 </project>
