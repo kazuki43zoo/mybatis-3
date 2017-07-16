@@ -350,13 +350,32 @@
 		<groupId>org.apache.maven.plugins</groupId>
 		<artifactId>maven-enforcer-plugin</artifactId>
 		<version>3.0.0-SNAPSHOT</version>
-		<configuration>
-			<rules>
-				<requirePluginVersions>
-					<banSnapshots>false</banSnapshots>
-				</requirePluginVersions>
-			</rules>
-		</configuration>
+		<executions>
+			<execution>
+				<id>enforce-java</id>
+				<phase>validate</phase>
+				<goals>
+					<goal>enforce</goal>
+				</goals>
+				<configuration>
+					<rules>
+						<requireJavaVersion>
+							<version>[1.6,)</version>
+						</requireJavaVersion>
+						<requireMavenVersion>
+							<version>[3.2.5,)</version>
+						</requireMavenVersion>
+						<requirePluginVersions>
+							<message>[ERROR] Best Practice is to always define plugin versions!</message>
+							<banLatest>true</banLatest>
+							<banRelease>true</banRelease>
+							<banSnapshots>flase</banSnapshots>
+							<phases>clean,deploy,site</phases>
+						</requirePluginVersions>
+					</rules>
+				</configuration>
+			</execution>
+		</executions>
 	</plugin>
 
 	</plugins>
