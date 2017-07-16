@@ -10,7 +10,7 @@ jdk:
 #  - openjdk6
 
 before_install:
-  - echo "MAVEN_OPTS='-Dlicense.skip=true -Danimal.sniffer.skip=true'" > ~/.mavenrc
+  - echo "MAVEN_OPTS='-Dlicense.skip=true'" > ~/.mavenrc
   - export MAVEN_SKIP_RC=true
 
 install: true
