@@ -2,6 +2,11 @@ language: java
 sudo: false
 dist: precise
 
+cache:
+  directories:
+    - $HOME/.m2
+    - $HOME/.embedpostgresql
+
 jdk:
   - oraclejdk8
   - oraclejdk7
