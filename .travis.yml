@@ -1,7 +1,7 @@
 language: java
 sudo: false
-#dist: precise
-dist: trusty
+dist: precise
+#dist: trusty
 
 addons:
   hosts:
@@ -9,11 +9,11 @@ addons:
   hostname: mybatisci
 
 jdk:
-  - oraclejdk9
+#  - oraclejdk9
   - oraclejdk8
 #  - oraclejdk7
   - openjdk7
-#  - openjdk6
+  - openjdk6
 
 before_install:
   - echo "MAVEN_OPTS='-Dlicense.skip=true'" > ~/.mavenrc
