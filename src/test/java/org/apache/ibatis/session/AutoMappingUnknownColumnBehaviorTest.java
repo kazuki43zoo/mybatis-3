@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2016 the original author or authors.
+ *    Copyright 2009-2018 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,6 +15,8 @@
  */
 package org.apache.ibatis.session;
 
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.UnsynchronizedAppenderBase;
 import org.apache.ibatis.BaseDataTest;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.domain.blog.Author;
@@ -22,8 +24,6 @@ import org.apache.ibatis.exceptions.PersistenceException;
 import org.apache.ibatis.mapping.Environment;
 import org.apache.ibatis.transaction.TransactionFactory;
 import org.apache.ibatis.transaction.jdbc.JdbcTransactionFactory;
-import org.apache.log4j.spi.LoggingEvent;
-import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
@@ -80,11 +80,12 @@ public class AutoMappingUnknownColumnBehaviorTest {
         }
     }
 
-    public static class LastEventSavedAppender extends NullAppender {
-        private static LoggingEvent event;
+    public static class LastEventSavedAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
+        private static ILoggingEvent lastEvent;
 
-        public void doAppend(LoggingEvent event) {
-            LastEventSavedAppender.event = event;
+        @Override
+        protected void append(ILoggingEvent event) {
+          lastEvent = event;
         }
     }
 
@@ -126,7 +127,7 @@ public class AutoMappingUnknownColumnBehaviorTest {
             SimpleAuthor author = mapper.selectSimpleAuthor(101);
             assertThat(author.getId()).isNull();
             assertThat(author.getUsername()).isEqualTo("jim");
-            assertThat(LastEventSavedAppender.event.getMessage().toString()).isEqualTo("Unknown column is detected on 'org.apache.ibatis.session.AutoMappingUnknownColumnBehaviorTest$Mapper.selectSimpleAuthor' auto-mapping. Mapping parameters are [columnName=ID,propertyName=id,propertyType=java.util.concurrent.atomic.AtomicInteger]");
+            assertThat(LastEventSavedAppender.lastEvent.getMessage()).isEqualTo("Unknown column is detected on 'org.apache.ibatis.session.AutoMappingUnknownColumnBehaviorTest$Mapper.selectSimpleAuthor' auto-mapping. Mapping parameters are [columnName=ID,propertyName=id,propertyType=java.util.concurrent.atomic.AtomicInteger]");
 
         } finally {
             session.close();
