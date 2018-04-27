@@ -146,6 +146,7 @@
     <!-- Override: Animal Sniffer Signature -->
     <signature.artifact>java18</signature.artifact>
     <signature.version>1.0</signature.version>
+    <jacoco.version>0.8.1</jacoco.version>
   </properties>
 
   <dependencies>
