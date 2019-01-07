@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2017 the original author or authors.
+ *    Copyright 2009-2018 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,20 +15,19 @@
  */
 package org.apache.ibatis.submitted.dml_return_types;
 
+import org.apache.ibatis.BaseDataTest;
 import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.Reader;
-import java.sql.Connection;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class DmlMapperReturnTypesTest {
 
@@ -40,48 +39,32 @@ public class DmlMapperReturnTypesTest {
   private SqlSession sqlSession;
   private Mapper mapper;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
     // create a SqlSessionFactory
-    Reader reader = Resources.getResourceAsReader(XML);
-    try {
+    try (Reader reader = Resources.getResourceAsReader(XML)) {
       sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
-    } finally {
-      reader.close();
     }
 
     // populate in-memory database
-    SqlSession session = sqlSessionFactory.openSession();
-    try {
-      Connection conn = session.getConnection();
-      reader = Resources.getResourceAsReader(SQL);
-      try {
-        ScriptRunner runner = new ScriptRunner(conn);
-        runner.setLogWriter(null);
-        runner.runScript(reader);
-        conn.close();
-      } finally {
-        reader.close();
-      }
-    } finally {
-      session.close();
-    }
+    BaseDataTest.runScript(sqlSessionFactory.getConfiguration().getEnvironment().getDataSource(), SQL);
+
   }
 
-  @Before
+  @BeforeEach
   public void openSession() {
     sqlSession = sqlSessionFactory.openSession();
     mapper = sqlSession.getMapper(Mapper.class);
   }
 
-  @After
+  @AfterEach
   public void closeSession() {
     sqlSession.close();
   }
 
   @Test
   public void updateShouldReturnVoid() {
-      mapper.updateReturnsVoid(new User(1, "updateShouldReturnVoid"));
+    mapper.updateReturnsVoid(new User(1, "updateShouldReturnVoid"));
   }
 
   @Test

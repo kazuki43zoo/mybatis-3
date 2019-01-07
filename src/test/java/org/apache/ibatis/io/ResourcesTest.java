@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2015 the original author or authors.
+ *    Copyright 2009-2018 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,9 +15,9 @@
  */
 package org.apache.ibatis.io;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.File;
 import java.io.IOException;
@@ -28,7 +28,8 @@ import java.nio.charset.Charset;
 import java.util.Properties;
 
 import org.apache.ibatis.BaseDataTest;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 public class ResourcesTest extends BaseDataTest {
 
@@ -56,31 +57,31 @@ public class ResourcesTest extends BaseDataTest {
   @Test
   public void shouldGetUrlAsStream() throws Exception {
     URL url = Resources.getResourceURL(CLASS_LOADER, JPETSTORE_PROPERTIES);
-    InputStream in = Resources.getUrlAsStream(url.toString());
-    assertNotNull(in);
-    in.close();
+    try (InputStream in = Resources.getUrlAsStream(url.toString())) {
+      assertNotNull(in);
+    }
   }
 
   @Test
   public void shouldGetUrlAsReader() throws Exception {
     URL url = Resources.getResourceURL(CLASS_LOADER, JPETSTORE_PROPERTIES);
-    Reader in = Resources.getUrlAsReader(url.toString());
-    assertNotNull(in);
-    in.close();
+    try (Reader in = Resources.getUrlAsReader(url.toString())) {
+      assertNotNull(in);
+    }
   }
 
   @Test
   public void shouldGetResourceAsStream() throws Exception {
-    InputStream in = Resources.getResourceAsStream(CLASS_LOADER, JPETSTORE_PROPERTIES);
-    assertNotNull(in);
-    in.close();
+    try (InputStream in = Resources.getResourceAsStream(CLASS_LOADER, JPETSTORE_PROPERTIES)) {
+      assertNotNull(in);
+    }
   }
 
   @Test
   public void shouldGetResourceAsReader() throws Exception {
-    Reader in = Resources.getResourceAsReader(CLASS_LOADER, JPETSTORE_PROPERTIES);
-    assertNotNull(in);
-    in.close();
+    try(Reader in = Resources.getResourceAsReader(CLASS_LOADER, JPETSTORE_PROPERTIES)) {
+      assertNotNull(in);
+    }
   }
 
   @Test
@@ -125,9 +126,11 @@ public class ResourcesTest extends BaseDataTest {
     assertNotNull(clazz);
   }
 
-  @Test(expected = ClassNotFoundException.class)
+  @Test
   public void shouldNotFindThisClass() throws ClassNotFoundException {
-    Resources.classForName("some.random.class.that.does.not.Exist");
+    Assertions.assertThrows(ClassNotFoundException.class, () -> {
+      Resources.classForName("some.random.class.that.does.not.Exist");
+    });
   }
 
   @Test

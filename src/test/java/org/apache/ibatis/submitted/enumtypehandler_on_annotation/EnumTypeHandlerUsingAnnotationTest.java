@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2016 the original author or authors.
+ *    Copyright 2009-2018 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,19 +15,17 @@
  */
 package org.apache.ibatis.submitted.enumtypehandler_on_annotation;
 
+import org.apache.ibatis.BaseDataTest;
 import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 import java.io.Reader;
-import java.sql.Connection;
-import java.sql.DriverManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,40 +45,23 @@ public class EnumTypeHandlerUsingAnnotationTest {
     private static SqlSessionFactory sqlSessionFactory;
     private SqlSession sqlSession;
 
-    @BeforeClass
+    @BeforeAll
     public static void initDatabase() throws Exception {
-        Connection conn = null;
-
-        try {
-            Class.forName("org.hsqldb.jdbcDriver");
-            conn = DriverManager.getConnection("jdbc:hsqldb:mem:enumtypehandler_on_annotation", "sa", "");
-
-            Reader reader = Resources.getResourceAsReader("org/apache/ibatis/submitted/enumtypehandler_on_annotation/CreateDB.sql");
-
-            ScriptRunner runner = new ScriptRunner(conn);
-            runner.setLogWriter(null);
-            runner.setErrorLogWriter(null);
-            runner.runScript(reader);
-            conn.commit();
-            reader.close();
-
-            reader = Resources.getResourceAsReader("org/apache/ibatis/submitted/enumtypehandler_on_annotation/mybatis-config.xml");
+        try (Reader reader = Resources.getResourceAsReader("org/apache/ibatis/submitted/enumtypehandler_on_annotation/mybatis-config.xml")) {
             sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
             sqlSessionFactory.getConfiguration().getMapperRegistry().addMapper(PersonMapper.class);
-            reader.close();
-        } finally {
-            if (conn != null) {
-                conn.close();
-            }
         }
+
+        BaseDataTest.runScript(sqlSessionFactory.getConfiguration().getEnvironment().getDataSource(),
+                "org/apache/ibatis/submitted/enumtypehandler_on_annotation/CreateDB.sql");
     }
 
-    @Before
+    @BeforeEach
     public void openSqlSession() {
         this.sqlSession = sqlSessionFactory.openSession();
     }
 
-    @After
+    @AfterEach
     public void closeSqlSession() {
         sqlSession.close();
     }

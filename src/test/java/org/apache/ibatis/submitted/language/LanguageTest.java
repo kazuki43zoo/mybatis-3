@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2015 the original author or authors.
+ *    Copyright 2009-2018 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -16,20 +16,19 @@
 package org.apache.ibatis.submitted.language;
 
 import java.io.Reader;
-import java.sql.Connection;
-import java.sql.DriverManager;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.ibatis.BaseDataTest;
 import org.apache.ibatis.io.Resources;
-import org.apache.ibatis.jdbc.ScriptRunner;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 /**
  * Just a test case. Not a real Velocity implementation.
@@ -38,37 +37,19 @@ public class LanguageTest {
 
   protected static SqlSessionFactory sqlSessionFactory;
 
-  @BeforeClass
+  @BeforeAll
   public static void setUp() throws Exception {
-    Connection conn = null;
-
-    try {
-      Class.forName("org.hsqldb.jdbcDriver");
-      conn = DriverManager.getConnection("jdbc:hsqldb:mem:language", "sa", "");
-
-      Reader reader = Resources.getResourceAsReader("org/apache/ibatis/submitted/language/CreateDB.sql");
-
-      ScriptRunner runner = new ScriptRunner(conn);
-      runner.setLogWriter(null);
-      runner.setErrorLogWriter(null);
-      runner.runScript(reader);
-      conn.commit();
-      reader.close();
-
-      reader = Resources.getResourceAsReader("org/apache/ibatis/submitted/language/MapperConfig.xml");
+    try (Reader reader = Resources.getResourceAsReader("org/apache/ibatis/submitted/language/MapperConfig.xml")) {
       sqlSessionFactory = new SqlSessionFactoryBuilder().build(reader);
-      reader.close();
-    } finally {
-      if (conn != null) {
-        conn.close();
-      }
     }
+
+    BaseDataTest.runScript(sqlSessionFactory.getConfiguration().getEnvironment().getDataSource(),
+            "org/apache/ibatis/submitted/language/CreateDB.sql");
   }
 
   @Test
   public void testDynamicSelectWithPropertyParams() {
-    SqlSession sqlSession = sqlSessionFactory.openSession();
-    try {
+    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
 
       Parameter p = new Parameter(true, "Fli%");
       List<Name> answer = sqlSession.selectList("selectNames", p);
@@ -90,16 +71,12 @@ public class LanguageTest {
       for (Name n : answer) {
         assertTrue(n.getLastName() == null);
       }
-
-    } finally {
-      sqlSession.close();
     }
   }
 
   @Test
   public void testDynamicSelectWithExpressionParams() {
-    SqlSession sqlSession = sqlSessionFactory.openSession();
-    try {
+    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
 
       Parameter p = new Parameter(true, "Fli");
       List<Name> answer = sqlSession.selectList("selectNamesWithExpressions", p);
@@ -121,16 +98,12 @@ public class LanguageTest {
       for (Name n : answer) {
         assertTrue(n.getLastName() == null);
       }
-
-    } finally {
-      sqlSession.close();
     }
   }
 
   @Test
   public void testDynamicSelectWithIteration() {
-    SqlSession sqlSession = sqlSessionFactory.openSession();
-    try {
+    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
 
       int[] ids = { 2, 4, 5 };
       Map<String, Object> param = new HashMap<String, Object>();
@@ -140,75 +113,60 @@ public class LanguageTest {
       for (int i = 0; i < ids.length; i++) {
         assertEquals(ids[i], answer.get(i).getId());
       }
-
-    } finally {
-      sqlSession.close();
     }
   }
 
   @Test
   public void testLangRaw() {
-    SqlSession sqlSession = sqlSessionFactory.openSession();
-    try {
+    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
       Parameter p = new Parameter(true, "Fli%");
       List<Name> answer = sqlSession.selectList("selectRaw", p);
       assertEquals(3, answer.size());
       for (Name n : answer) {
         assertEquals("Flintstone", n.getLastName());
       }
-    } finally {
-      sqlSession.close();
     }
   }
 
   @Test
   public void testLangRawWithInclude() {
-    SqlSession sqlSession = sqlSessionFactory.openSession();
-    try {
+    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
       Parameter p = new Parameter(true, "Fli%");
       List<Name> answer = sqlSession.selectList("selectRawWithInclude", p);
       assertEquals(3, answer.size());
       for (Name n : answer) {
         assertEquals("Flintstone", n.getLastName());
       }
-    } finally {
-      sqlSession.close();
     }
   }
+
   @Test
   public void testLangRawWithIncludeAndCData() {
-    SqlSession sqlSession = sqlSessionFactory.openSession();
-    try {
+    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
       Parameter p = new Parameter(true, "Fli%");
       List<Name> answer = sqlSession.selectList("selectRawWithIncludeAndCData", p);
       assertEquals(3, answer.size());
       for (Name n : answer) {
         assertEquals("Flintstone", n.getLastName());
       }
-    } finally {
-      sqlSession.close();
     }
   }
-  
+
   @Test
   public void testLangXmlTags() {
-    SqlSession sqlSession = sqlSessionFactory.openSession();
-    try {
+    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
       Parameter p = new Parameter(true, "Fli%");
       List<Name> answer = sqlSession.selectList("selectXml", p);
       assertEquals(3, answer.size());
       for (Name n : answer) {
         assertEquals("Flintstone", n.getLastName());
       }
-    } finally {
-      sqlSession.close();
     }
   }
 
   @Test
   public void testLangRawWithMapper() {
-    SqlSession sqlSession = sqlSessionFactory.openSession();
-    try {
+    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
       Parameter p = new Parameter(true, "Fli%");
       Mapper m = sqlSession.getMapper(Mapper.class);
       List<Name> answer = m.selectRawWithMapper(p);
@@ -216,15 +174,12 @@ public class LanguageTest {
       for (Name n : answer) {
         assertEquals("Flintstone", n.getLastName());
       }
-    } finally {
-      sqlSession.close();
     }
   }
 
   @Test
   public void testLangVelocityWithMapper() {
-    SqlSession sqlSession = sqlSessionFactory.openSession();
-    try {
+    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
       Parameter p = new Parameter(true, "Fli%");
       Mapper m = sqlSession.getMapper(Mapper.class);
       List<Name> answer = m.selectVelocityWithMapper(p);
@@ -232,15 +187,12 @@ public class LanguageTest {
       for (Name n : answer) {
         assertEquals("Flintstone", n.getLastName());
       }
-    } finally {
-      sqlSession.close();
     }
   }
 
   @Test
   public void testLangXmlWithMapper() {
-    SqlSession sqlSession = sqlSessionFactory.openSession();
-    try {
+    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
       Parameter p = new Parameter(true, "Fli%");
       Mapper m = sqlSession.getMapper(Mapper.class);
       List<Name> answer = m.selectXmlWithMapper(p);
@@ -248,15 +200,12 @@ public class LanguageTest {
       for (Name n : answer) {
         assertEquals("Flintstone", n.getLastName());
       }
-    } finally {
-      sqlSession.close();
     }
   }
 
   @Test
   public void testLangXmlWithMapperAndSqlSymbols() {
-    SqlSession sqlSession = sqlSessionFactory.openSession();
-    try {
+    try (SqlSession sqlSession = sqlSessionFactory.openSession()) {
       Parameter p = new Parameter(true, "Fli%");
       Mapper m = sqlSession.getMapper(Mapper.class);
       List<Name> answer = m.selectXmlWithMapperAndSqlSymbols(p);
@@ -264,8 +213,6 @@ public class LanguageTest {
       for (Name n : answer) {
         assertEquals("Flintstone", n.getLastName());
       }
-    } finally {
-      sqlSession.close();
     }
   }
 

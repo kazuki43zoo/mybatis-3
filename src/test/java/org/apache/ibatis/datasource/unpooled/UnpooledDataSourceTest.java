@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2015 the original author or authors.
+ *    Copyright 2009-2018 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.datasource.unpooled;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -23,8 +23,8 @@ import java.sql.Driver;
 import java.sql.DriverManager;
 import java.util.Enumeration;
 
-import org.junit.Ignore;
-import org.junit.Test;
+import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.Test;
 
 public class UnpooledDataSourceTest {
 
@@ -33,14 +33,14 @@ public class UnpooledDataSourceTest {
     // https://code.google.com/p/mybatis/issues/detail?id=430
     UnpooledDataSource dataSource = null;
     dataSource = new UnpooledDataSource("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:multipledrivers", "sa", "");
-    dataSource.getConnection();
+    dataSource.getConnection().close();
     int before = countRegisteredDrivers();
     dataSource = new UnpooledDataSource("org.hsqldb.jdbcDriver", "jdbc:hsqldb:mem:multipledrivers", "sa", "");
-    dataSource.getConnection();
+    dataSource.getConnection().close();
     assertEquals(before, countRegisteredDrivers());
   }
 
-  @Ignore("Requires MySQL server and a driver.")
+  @Disabled("Requires MySQL server and a driver.")
   @Test
   public void shouldRegisterDynamicallyLoadedDriver() throws Exception {
     int before = countRegisteredDrivers();
@@ -48,11 +48,11 @@ public class UnpooledDataSourceTest {
     UnpooledDataSource dataSource = null;
     driverClassLoader = new URLClassLoader(new URL[] { new URL("jar:file:/PATH_TO/mysql-connector-java-5.1.25.jar!/") });
     dataSource = new UnpooledDataSource(driverClassLoader, "com.mysql.jdbc.Driver", "jdbc:mysql://127.0.0.1/test", "root", "");
-    dataSource.getConnection();
+    dataSource.getConnection().close();
     assertEquals(before + 1, countRegisteredDrivers());
     driverClassLoader = new URLClassLoader(new URL[] { new URL("jar:file:/PATH_TO/mysql-connector-java-5.1.25.jar!/") });
     dataSource = new UnpooledDataSource(driverClassLoader, "com.mysql.jdbc.Driver", "jdbc:mysql://127.0.0.1/test", "root", "");
-    dataSource.getConnection();
+    dataSource.getConnection().close();
     assertEquals(before + 1, countRegisteredDrivers());
   }
 

@@ -14,7 +14,7 @@
  *    limitations under the License.
  */
 /**
- * TODO fillme.
- * @deprecated Since 3.5.0 - See https://github.com/mybatis/mybatis-3/issues/1223. This package will remove future.
+ * Logger using Log4J feature.
+ * @deprecated Since 3.5.0 - See https://github.com/mybatis/mybatis-3/issues/1223. This package will be removed in the future.
  */
 package org.apache.ibatis.logging.log4j;

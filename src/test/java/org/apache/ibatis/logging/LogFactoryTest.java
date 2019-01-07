@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2015 the original author or authors.
+ *    Copyright 2009-2018 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -15,7 +15,7 @@
  */
 package org.apache.ibatis.logging;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.Reader;
 
@@ -28,7 +28,7 @@ import org.apache.ibatis.logging.nologging.NoLoggingImpl;
 import org.apache.ibatis.logging.slf4j.Slf4jImpl;
 import org.apache.ibatis.logging.stdout.StdOutImpl;
 import org.apache.ibatis.session.SqlSessionFactoryBuilder;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class LogFactoryTest {
 
@@ -55,7 +55,7 @@ public class LogFactoryTest {
     logSomething(log);
     assertEquals(log.getClass().getName(), Log4j2Impl.class.getName());
   }
-  
+
   @Test
   public void shouldUseJdKLogging() {
     LogFactory.useJdkLogging();
@@ -90,10 +90,10 @@ public class LogFactoryTest {
 
   @Test
   public void shouldReadLogImplFromSettings() throws Exception {
-    Reader reader = Resources.getResourceAsReader("org/apache/ibatis/logging/mybatis-config.xml");
-    new SqlSessionFactoryBuilder().build(reader);
-    reader.close();
-    
+    try (Reader reader = Resources.getResourceAsReader("org/apache/ibatis/logging/mybatis-config.xml")) {
+      new SqlSessionFactoryBuilder().build(reader);
+    }
+
     Log log = LogFactory.getLog(Object.class);
     log.debug("Debug message.");
     assertEquals(log.getClass().getName(), NoLoggingImpl.class.getName());
