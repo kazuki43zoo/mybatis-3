@@ -113,6 +113,7 @@ public class Configuration {
   protected boolean callSettersOnNulls;
   protected boolean useActualParamName = true;
   protected boolean returnInstanceForEmptyRow;
+  protected boolean nullableOnForEach;
 
   protected String logPrefix;
   protected Class<? extends Log> logImpl;
@@ -264,6 +265,28 @@ public class Configuration {
 
   public void setReturnInstanceForEmptyRow(boolean returnEmptyInstance) {
     this.returnInstanceForEmptyRow = returnEmptyInstance;
+  }
+
+  /**
+   * Sets the default value of 'nullable' attribute on 'foreach' tag.
+   *
+   * @param nullableOnForEach If nullable, set to {@code true}
+   * @since 3.5.5
+   */
+  public void setNullableOnForEach(boolean nullableOnForEach) {
+    this.nullableOnForEach = nullableOnForEach;
+  }
+
+  /**
+   * Returns the default value of of 'nullable' attribute on 'foreach' tag.
+   *
+   * <p>Default is {@code false}.
+   *
+   * @return If nullable, set to {@code true}
+   * @since 3.5.5
+   */
+  public boolean isNullableOnForEach() {
+    return nullableOnForEach;
   }
 
   public String getDatabaseId() {

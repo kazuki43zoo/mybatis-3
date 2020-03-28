@@ -1,5 +1,5 @@
 /**
- *    Copyright 2009-2019 the original author or authors.
+ *    Copyright 2009-2020 the original author or authors.
  *
  *    Licensed under the Apache License, Version 2.0 (the "License");
  *    you may not use this file except in compliance with the License.
@@ -40,9 +40,20 @@ public class ExpressionEvaluator {
   }
 
   public Iterable<?> evaluateIterable(String expression, Object parameterObject) {
+    return evaluateIterable(expression, parameterObject, false);
+  }
+
+  /**
+   * @since 3.5.5
+   */
+  public Iterable<?> evaluateIterable(String expression, Object parameterObject, boolean nullable) {
     Object value = OgnlCache.getValue(expression, parameterObject);
     if (value == null) {
-      throw new BuilderException("The expression '" + expression + "' evaluated to a null value.");
+      if (nullable) {
+        return null;
+      } else {
+        throw new BuilderException("The expression '" + expression + "' evaluated to a null value.");
+      }
     }
     if (value instanceof Iterable) {
       return (Iterable<?>) value;
