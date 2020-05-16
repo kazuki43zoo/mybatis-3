@@ -142,6 +142,7 @@
 
     <!-- Remove after parent 32 (support for jdk 13on) -->
     <jacoco.version>0.8.5</jacoco.version>
+    <bundle.version>4.2.1</bundle.version>
   </properties>
 
   <dependencies>
