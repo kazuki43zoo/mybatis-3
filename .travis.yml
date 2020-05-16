@@ -17,8 +17,8 @@ cache:
 before_install:
   - echo "MAVEN_OPTS='-Dlicense.skip=true'" > ~/.mavenrc
 
-script:
-  - ./mvnw test -B -X
+install:
+  - ./mvnw install -DskipTests=true -Dmaven.javadoc.skip=true -B -V -X
 
 after_success:
   - chmod -R 777 ./travis/after_success.sh
