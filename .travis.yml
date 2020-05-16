@@ -2,10 +2,10 @@ language: java
 
 jdk:
   - openjdk15
-  - openjdk14
-  - openjdk13
-  - openjdk11
-  - openjdk8
+#  - openjdk14
+#  - openjdk13
+#  - openjdk11
+#  - openjdk8
 
 services:
   - docker
@@ -15,7 +15,7 @@ cache:
     - $HOME/.m2
 
 before_install:
-  - echo "MAVEN_OPTS='-Dlicense.skip=true'" > ~/.mavenrc
+  - echo "MAVEN_OPTS='-Dlicense.skip=true -X'" > ~/.mavenrc
 
 after_success:
   - chmod -R 777 ./travis/after_success.sh
