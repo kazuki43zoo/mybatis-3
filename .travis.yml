@@ -15,7 +15,10 @@ cache:
     - $HOME/.m2
 
 before_install:
-  - echo "MAVEN_OPTS='-Dlicense.skip=true -X'" > ~/.mavenrc
+  - echo "MAVEN_OPTS='-Dlicense.skip=true'" > ~/.mavenrc
+
+script:
+  - ./mvnw test -B -X
 
 after_success:
   - chmod -R 777 ./travis/after_success.sh
