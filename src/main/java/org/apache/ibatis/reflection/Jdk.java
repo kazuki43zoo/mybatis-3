@@ -74,6 +74,25 @@ public class Jdk {
     optionalExists = available;
   }
 
+  /**
+   * Whether exists 'java.lang.Record' in runtime environment.
+   * <p>
+   * If exists class return {@code true}.
+   * </p>
+   * @since 3.5.8
+   */
+  public static final boolean recordExists;
+  static {
+    boolean available = false;
+    try {
+      Resources.classForName("java.lang.Record");
+      available = true;
+    } catch (ClassNotFoundException e) {
+      // ignore
+    }
+    recordExists = available;
+  }
+
   private Jdk() {
     super();
   }
